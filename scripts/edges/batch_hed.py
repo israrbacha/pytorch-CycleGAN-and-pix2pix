@@ -14,6 +14,8 @@ import numpy as np
 from PIL import Image
 import os
 import argparse
+import skimage.io
+import skimage.color
 import sys
 import scipy.io as sio
 
@@ -57,7 +59,12 @@ border = args.border
 for i in range(nImgs):
     if i % 500 == 0:
         print('processing image %d/%d' % (i, nImgs))
-    im = Image.open(os.path.join(args.images_dir, imgList[i]))
+    im = skimage.io.imread(os.path.join(args.images_dir, imgList[i]))
+    if im.ndim != 3:
+        im=skimage.color.gray2rgb(im)
+    # for alpha channel removel if any
+    if im.shape[-1] == 4:
+        im = im[..., :3]
 
     in_ = np.array(im, dtype=np.float32)
     in_ = np.pad(in_, ((border, border), (border, border), (0, 0)), 'reflect')
